@@ -133,6 +133,208 @@ def signup(request, number):
 
     return render_to_response('registration/signup/signup.html', var)
 
+'''
+
+Social account integration is a huge pain in Django. Unlike Ruby which has extremely amazing gems such as omniauth, Python-Django does not have such luxuries. We are using Pyfb for Facebook and Tweepy for Twitter integrations. Every social authentication system comprises of three parts -- one that calls the API and redirects you to the permission page, the other one that gets back the token and takes you to the callback URL, and the last one, called the Prestige :D , that adds the tokens and keys to the database.
+
+'''
+
+def beginFbAuth(request):
+    facebook = Pyfb(settings.FACEBOOK_APP_ID)
+    return HttpResponseRedirect(facebook.get_auth_code_url(redirect_uri=settings.FACEBOOK_SIGNUP_REDIRECT_URL))
+
+def facebooksignupsuccess(request):
+    code = request.GET.get('code')    
+    facebook = Pyfb(settings.FACEBOOK_APP_ID)
+    fb_token = facebook.get_access_token(settings.FACEBOOK_SECRET_KEY, code, redirect_uri=settings.FACEBOOK_SIGNUP_REDIRECT_URL)
+    me = facebook.get_myself()
+
+    try:
+        user = User.objects.get(email = me.email)
+        try:
+            fbk = FacebookProfiles.objects.get(user = user)
+        except ObjectDoesNotExist:
+            fbk = FacebookProfiles.objects.create(
+                user = user,
+                fbk_id = me.id,
+                fbk_token = fb_token
+            )
+        login(request, user)
+        return HttpResponseRedirect('/feed/')
+    except ObjectDoesNotExist:
+        user = User.objects.create_user(
+            username = me.username,
+            email = me.email
+            )
+
+        fbk = FacebookProfiles.objects.create(
+            user = user,
+            fbk_id = me.id,
+            fbk_token = fb_token
+        )
+
+        name_split = shlex.split(me.name)
+        fname = name_split[0]
+        lname = ''
+    
+        for x in name_split[1:]:
+            lname += (x + ' ')
+
+        user.first_name = fname
+        user.last_name = lname
+            
+        user.save()
+
+        return HttpResponseRedirect('/setpwd/%s' % str(me.id))
+
+def setpassword(request, idnum):
+
+    idnum = int(idnum)
+
+    try:
+        fb = FacebookProfiles.objects.get(fbk_id = idnum)
+        facebook = Pyfb(settings.FACEBOOK_APP_ID)
+        facebook.set_access_token(fb.fbk_token)
+        me = facebook.get_user_by_id(id = fb.fbk_id)
+        user = fb.user
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect('/landing/')
+
+    if request.method == 'POST':
+        form = PasswordSetForm(request.POST)
+
+        if form.is_valid():
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            return HttpResponseRedirect('/login/')
+    else:
+        form = PasswordSetForm()
+
+    var = RequestContext(request, {
+        'form':form,
+        'me':me,
+        'user':user
+        })
+
+    return render_to_response('registration/facebook.html', var)
+
+'''
+
+Twitter signup is a little bit more complicated than Facebook because Twitter does not give us the user's email address.
+We, however, need it. Therefore, in the final step, we will be collecting the user's email address in addition to the password as is being set in the facebook signup process.
+
+'''
+
+def beginTwitterAuth(request):
+    # start the OAuth process, set up a handler with our details
+    oauth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    
+    # direct the user to the authentication url
+    # if user is logged-in and authorized then transparently goto the callback URL
+    
+    auth_url = oauth.get_authorization_url(True)
+    response = HttpResponseRedirect(auth_url)
+    
+    # store the request token
+    request.session['unauthed_token_tw'] = (oauth.request_token.key, oauth.request_token.secret)
+    request.session.save()
+    request.session.modified=True
+ 
+    return response 
+
+def twitterCallback(request):
+    verifier = request.GET.get('oauth_verifier')
+    oauth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    token = request.session.get('unauthed_token_tw', None)
+    # remove the request token now we don't need it
+    request.session.delete('unauthed_token_tw')
+    request.session.modified=True
+    oauth.set_request_token(token[0], token[1])
+    # get the access token and store
+    try:
+        oauth.get_access_token(verifier)
+    except tweepy.TweepError:
+        print 'Error, failed to get access token'
+    request.session['access_key_tw'] = oauth.access_token.key
+    request.session['access_secret_tw'] = oauth.access_token.secret    
+    response = HttpResponseRedirect('/addtwitter/')
+    return response
+ 
+def info(request):
+    api = get_api(request)
+    me = api.me()
+    user = User.objects.create_user(
+            username = me.screen_name,
+        )
+
+    name_split = shlex.split(me.name)
+    fname = name_split[0]
+    lname = ''
+    
+    for x in name_split[1:]:
+        lname += (x + ' ')
+
+    user.first_name = fname
+    user.last_name = lname
+            
+    user.save()
+
+    twttr = TwitterProfiles.objects.create(
+            user = user,
+            oauth_token = request.session['access_key_tw'],
+            oauth_secret = request.session['access_secret_tw']
+        )
+
+    return HttpResponseRedirect('/setpwd/twitter/%s' % str(user.id))
+
+def setpwdtwttr(request, idnum):
+    try:
+        user = User.objects.get(id = int(idnum))
+        tw_user = TwitterProfiles.objects.get(user = user)
+    except ObjectDoesNotExist:
+        raise Http404
+
+    api = get_api(request)
+    me = api.me()
+
+    if request.method == 'POST':
+        form = TwitterSignupForm(request.POST)
+
+        if form.is_valid():
+            try:
+                twuser = User.objects.get(email = form.cleaned_data['email'])
+                twuser.username = me.screen_name
+                twuser.save()
+                tw_user.user = twuser
+                tw_user.save()
+            except ObjectDoesNotExist:
+                user.email = form.cleaned_data['email']
+                user.set_password(form.cleaned_data['password'])
+                user.save()
+            return HttpResponseRedirect('/login/')
+    else:
+        form = TwitterSignupForm()
+
+    var = RequestContext(request, {
+        'form':form,
+        'me':me
+        })
+
+    return render_to_response('registration/tw.html', var)
+
+def check_key(request):
+    """
+   Check to see if we already have an access_key stored, if we do then we have already gone through
+   OAuth. If not then we haven't and we probably need to.
+   """
+    try:
+        access_key = request.session.get('access_key_tw', None)
+        if not access_key:
+            return False
+    except KeyError:
+        return False
+    return True
+
 def welcome(request):
     genres = Genres.objects.all()
     u = request.user

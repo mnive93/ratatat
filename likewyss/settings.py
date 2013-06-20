@@ -27,6 +27,13 @@ DATABASES = {
     }
 }
 
+# Social Signup Parameters
+
+FACEBOOK_CACHE_TIMEOUT = 1800
+FACEBOOK_APP_ID = '626969007330520'
+FACEBOOK_SECRET_KEY = 'b4a54affedfb1fcfe9a5978c97e11ce8'
+FACEBOOK_SIGNUP_REDIRECT_URL = SITE_HOST + 'fb/'
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['.likewyss.com']

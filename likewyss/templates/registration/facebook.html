@@ -1,0 +1,14 @@
+{% extends 'parent/landing-base.html' %}
+
+{% block title %}Welcome aboard Likewyss{% endblock %}
+
+{% block heading %}Hey, {{ me.name }}{% endblock %}
+
+{% block content %}
+		<p>Thanks for signing up with your Facebook account. Although we want to deeply integrate our service with other social networks, we would like to stay independent too. So, please set a password exclusively for accessing your Likewyss account using your username {{ user.username }} or email address {{ me.email }}</p>
+		<form action="." method="post">
+			{% csrf_token %}
+			<input type="password" placeholder="Choose a strong password." name='password' id="id_password" />
+			<button type="submit" class="btn btn-success">Set password and get going</button>
+		</form>
+{% endblock %}

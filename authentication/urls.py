@@ -6,4 +6,5 @@ urlpatterns = patterns('',
 	(r'^logout/$', lr(logout_user)),
 	(r'^signup/(\w+)$', nlr(signup)),
 	(r'^welcome/$', lr(welcome)),
+	(r'^facebook/$', nlr(beginFbAuth)),
 )
