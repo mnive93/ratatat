@@ -1,0 +1,12 @@
+{% extends 'parent/landing-base.html' %}
+
+{% block title %}Email associated to account{% endblock %}
+
+{% block heading %}<span class="text-error">Existing Account</span>{% endblock %}
+
+{% block content %}
+<p>
+	Your email address <strong>{{ email }}</strong> is already associated with an account in Likewyss. If you remember the username-password combination used to access that account, login. Or you could initiate a process to recover your account.
+</p>
+<a href="/auth/login/"><button type="button" class="btn btn-info">Login to Likewyss</button></a>
+{% endblock %}	

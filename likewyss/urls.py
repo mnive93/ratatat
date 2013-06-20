@@ -1,17 +1,21 @@
 from django.conf.urls import patterns, include, url
+from authentication.views import hello, feed
+import os
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+media = os.path.join(os.path.dirname(__file__), 'media')
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'likewyss.views.home', name='home'),
-    # url(r'^likewyss/', include('likewyss.foo.urls')),
+	(r'^$', hello),
+	(r'^feed/$', feed),
+    (r'^auth/', include('authentication.urls')),
+)
 
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+'''
 
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+Media URLs will be served by rewriting URL confs for the same. This is however only for development purposes. In production, media will mostly be served via Apache or lighthttpd or a similar server.
+
+'''
+
+urlpatterns += patterns('',
+	(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root':media}),
 )

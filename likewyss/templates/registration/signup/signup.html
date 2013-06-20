@@ -1,0 +1,10 @@
+<form method="post">
+	{% if form.errors %}
+	{% for err in form.errors %}
+	<li class="text-error">Error in {{ err }}</li>
+	{% endfor %}
+	{% endif %}
+	{{ form.as_p }}
+	<input type="submit" value="submit" />
+	{% csrf_token %}
+</form>

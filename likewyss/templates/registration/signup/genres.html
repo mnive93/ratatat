@@ -1,0 +1,24 @@
+{% extends "parent/landing-base.html" %}
+
+{% block title %}
+Hello, {{ user.username }}
+{% endblock %}
+
+{% block heading %}
+Hi, {{ user.get_full_name }}
+{% endblock %}
+
+{% block content %}
+<form action="." method="post">
+	{% csrf_token %}
+	{% for genre in genres %}
+	<label for="option{{genre.id}}">
+		<li class="span3 well">
+			<input type="checkbox" name="selectedgenres" id="option{{genre.id}}" class="checkbox" value="{{ genre.id }}" />
+			<i class="icon-film icon-2x"></i>&nbsp;&nbsp;{{ genre.title }}
+		</li>
+	</label>
+	{% endfor %}
+	<button type="submit" class="btn btn-success btn-large">I'm done.</button>
+</form>
+{% endblock %}

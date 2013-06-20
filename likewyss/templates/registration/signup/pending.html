@@ -1,0 +1,15 @@
+{% extends 'parent/landing-base.html' %}
+
+{% block title %}Email verification pending{% endblock %}
+
+{% block heading %}<span class="text-warning">Verification pending</span>{% endblock %}
+
+{% block content %}
+<p>
+	Your email address {{ email }} has already been queued for sign up at Likewyss.
+</p>
+
+<p>
+We send a link that contains a code to verify the validity of your email address. Please check your inbox for a mail from us.
+</p>
+{% endblock %}

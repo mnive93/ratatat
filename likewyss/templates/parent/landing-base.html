@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" type="text/css" href="/media/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="/media/font-awesome/css/font-awesome.css" />
+	<link rel="stylesheet" type="text/css" href="/media/css/landing.css" />
+	<link rel="stylesheet" type="text/css" href="/media/css/social-buttons.css" />
+</head>
+
+<body>
+	<div class="container">
+		<div class="row well">
+			<div class="span9">
+				<h1>{% block heading %}{% endblock %}</h1>
+				<h3>{% block helptext %}{% endblock %}</h3>
+				<br>
+				{% block content %}{% endblock %}
+		</div>
+	</div>
+</body>

@@ -1,0 +1,68 @@
+body {
+	background-image: url('texture.png');
+	background-repeat: repeat-x repeat-y;
+}
+	.container {
+		position:relative;
+		top:50px;
+	}
+	
+	.span9 {
+		position:relative;
+		left:12.5%;
+		text-align:center;
+	}
+	
+	.span4 {
+		text-align:justify;
+	}
+	
+	.span9 h1 {
+		letter-spacing:-0.05em;
+		font-size:60px;
+		line-height:60%;
+	}
+	
+	.span9 h3 {
+		letter-spacing:-0.05em;
+		font-weight:normal;
+		font-size:30px;
+		color:#666;
+	}
+	
+	.span9 p {
+		margin-top:20px;
+		line-height:150%;
+	}
+	
+	.well input {
+		padding:10px;
+		display:inline-block;
+	}
+	
+	.countmein {
+		padding:10px;
+	}
+			
+	.well p {
+		color:#666;
+		letter-spacing:-0.070em;
+	}
+		
+	.btn a {
+		text-decoration:none;
+		font-weight:normal;
+		color:#FFF;
+	}
+	
+	.span4 h6 {
+		font-weight:normal;
+	}
+	
+	#remember input {
+		vertical-align:top;
+	}
+
+	.well {
+		box-shadow: 0 0 12.5px #333;
+	}

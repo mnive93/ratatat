@@ -1,0 +1,17 @@
+{% extends "parent/landing-base.html" %}
+
+{% block title %}
+Login to Likewyss
+{% endblock %}
+
+{% block heading %}Login to Likewyss{% endblock %}
+
+{% block content %}
+<form action="." method="post">
+	<i class="icon-user icon-large"></i>&nbsp;&nbsp;<input type="text" name="username" id="id_username" class="input-xlarge" placeholder="Username" /><br>
+	<i class="icon-key icon-large"></i>&nbsp;&nbsp;<input type="password" name="password" id="id_password" class="input-xlarge" placeholder="Password" /><br>
+	{% csrf_token %}
+	<button type="submit" class="btn btn-large btn-danger"><i class='icon-unlock'></i>&nbsp;&nbsp;Login to my Likewyss account</button>
+	<input type="hidden" value="/feed/" name="next" />
+</form>
+{% endblock %}
