@@ -6,16 +6,16 @@
 {% block helptext %}Nice to meet us? Likewyss.{% endblock %}
 
 {% block content %}
-<a href="/auth/facebook/"><button type="button" class="btn btn-facebook btn-large"><i class="icon-facebook icon-large"></i>&nbsp;&nbsp;Connect with Facebook</button></a>
-<a href="/auth/twitter/"><button type="button" class="btn btn-twitter btn-large"><i class="icon-twitter icon-large"></i>&nbsp;&nbsp;Connect with Twitter</button></a>
-<hr>
 <form action="." method="post">
 	{% if form.errors %}
 	<p class="text-error">You seem to have entered an invalid email address. Please try again.</p>
 	{% endif %}
-	<input type="email" name="email" class="input-xxlarge" id="id_email" placeholder="Or simply sign up with your email address." /><br>
+	<input type="email" name="email" class="input-xxlarge" id="id_email" placeholder="Connect with Facebook, Twitter or use your email address to signup for Likewyss" /><br>
 	{% csrf_token %}
-	<button type="submit" class="btn btn-success btn-large"><i class="icon-caret-right icon-large"></i>&nbsp;&nbsp;Get started afresh</button>
-	<a href="/auth/login/"><button type="button" class="btn btn-danger btn-large"><i class="icon-unlock icon-large"></i>&nbsp;&nbsp;Or login to Likewyss</button></a>
+	<button type="submit" class="btn btn-success btn-large" title="Use the email address I just gave you"><i class="icon-envelope icon-2x"></i></button>
+	<a href="/auth/facebook/" title="Connect with Facebook"><button type="button" class="btn btn-facebook btn-large">&nbsp;&nbsp;<i class="icon-facebook icon-2x"></i>&nbsp;&nbsp;</button></a>
+<a href="/auth/twitter/" title="Connect with Twitter"><button type="button" class="btn btn-twitter btn-large"><i class="icon-twitter icon-2x"></i></button></a>
+<hr>
+	<a href="/auth/login/" title="Login to my existing Likewyss account"><button type="button" class="btn btn-danger btn-large"><i class="icon-unlock icon-large"></i>&nbsp;&nbsp;Or login to Likewyss</button></a>
 </form>
 {% endblock %}

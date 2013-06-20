@@ -2,6 +2,10 @@ body {
 	background-image: url('texture.png');
 	background-repeat: repeat-x repeat-y;
 }
+
+a:hover {
+	text-decoration: none;
+}
 	.container {
 		position:relative;
 		top:50px;
@@ -9,7 +13,7 @@ body {
 	
 	.span9 {
 		position:relative;
-		left:12.5%;
+		left:10%;
 		text-align:center;
 	}
 	
@@ -17,13 +21,13 @@ body {
 		text-align:justify;
 	}
 	
-	.span9 h1 {
+	.span9 h1, .span12 h1 {
 		letter-spacing:-0.05em;
 		font-size:60px;
 		line-height:60%;
 	}
 	
-	.span9 h3 {
+	.span9 h3, .span12 h3 {
 		letter-spacing:-0.05em;
 		font-weight:normal;
 		font-size:30px;
@@ -65,4 +69,16 @@ body {
 
 	.well {
 		box-shadow: 0 0 12.5px #333;
+	}
+
+	li {
+		list-style: none;
+	}
+
+	#starred {
+		color:#d4c200;
+	}
+
+	#allstories {
+		color:#007caf;
 	}

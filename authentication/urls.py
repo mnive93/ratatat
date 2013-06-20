@@ -3,7 +3,7 @@ from views import *
 
 urlpatterns = patterns('',
 	(r'^login/$', 'django.contrib.auth.views.login'),
-	(r'^logout/$', logout_user),
-	(r'^signup/(\w+)$', signup),
-	(r'^welcome/$', welcome)
+	(r'^logout/$', lr(logout_user)),
+	(r'^signup/(\w+)$', nlr(signup)),
+	(r'^welcome/$', lr(welcome)),
 )

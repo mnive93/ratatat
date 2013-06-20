@@ -114,7 +114,6 @@ def signup(request, number):
             lname = ''
             for x in name_split[1:]:
                 lname += (x + ' ')
-
             user = User.objects.create_user(
                 username = form.cleaned_data['username'],
                 password = form.cleaned_data['password'],
@@ -128,32 +127,27 @@ def signup(request, number):
         form = SignupForm()
 
     var = RequestContext(request, {
-        'form':form
+        'form':form,
+        'email':signup.emailaddress
         })
 
     return render_to_response('registration/signup/signup.html', var)
 
 def welcome(request):
     genres = Genres.objects.all()
-
+    u = request.user
     if request.method == 'POST':
         genrelist = request.POST.getlist('selectedgenres')
-        gx = []
-
+        
         for itemid in genrelist:
             g = Genres.objects.get(id=itemid)
-            gx.append(g.title)
+            u.genretouser.add(g)
 
-        return HttpResponse(gx)
+        return HttpResponseRedirect('/feed/')
+
     else:
         var = RequestContext(request, {
             'user':request.user,
             'genres':genres
             })
         return render_to_response('registration/signup/genres.html', var)
-
-def feed(request):
-    var = RequestContext(request, {
-        'user':request.user
-        })
-    return render_to_response('pages/feed.html', var)

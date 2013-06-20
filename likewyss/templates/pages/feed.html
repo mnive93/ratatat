@@ -1,4 +1,38 @@
-{{ user.is_authenticated }}
-<p>{{ user.username }}</p>
-<p>{{ user.get_full_name }}</p>
-<p>{{ user.password }}</p>
+<!DOCTYPE HTML>
+
+<html>
+<head>
+	<title>Likewyss</title>
+	<link rel="stylesheet" type="text/css" href="/media/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="/media/font-awesome/css/font-awesome.css" />
+	<link rel="stylesheet" type="text/css" href="/media/css/landing.css" />
+	<link rel="stylesheet" type="text/css" href="/media/css/social-buttons.css" />
+</head>
+
+<body>
+	<div class="container">
+		<div class="row well">
+			<div class="span12">
+				<h1>Hi, {{ user.first_name }}.</h1>
+				<h3>Select a genre you'd like to check out.</h3>
+			</div>
+		</div>
+		<div class="row well">
+			<div class="span12">
+				<div class="span10 well">
+					<li><h2><i class="icon-star" id="starred"></i>&nbsp;&nbsp;Most popular stories on Likewyss</h2></li>
+				</div>
+				{% if genres %}
+				<div class="span10 well">
+					<li><h2><i class="icon-th" id="allstories"></i>&nbsp;&nbsp;From all genres I follow</h2></li>
+				</div>
+				{% for g in genres %}
+				<div class="span4 well">
+					<li><h2><i class="icon-{{g.identifier}}"></i>&nbsp;&nbsp;{{g.title}}</h2></li>
+				</div>
+				{% endfor %}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</body>

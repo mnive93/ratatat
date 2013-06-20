@@ -15,7 +15,7 @@ Hi, {{ user.get_full_name }}
 	<label for="option{{genre.id}}">
 		<li class="span3 well">
 			<input type="checkbox" name="selectedgenres" id="option{{genre.id}}" class="checkbox" value="{{ genre.id }}" />
-			<i class="icon-film icon-2x"></i>&nbsp;&nbsp;{{ genre.title }}
+			<i class="icon-{{genre.identifier}} icon-2x"></i>&nbsp;&nbsp;{{ genre.title }}
 		</li>
 	</label>
 	{% endfor %}

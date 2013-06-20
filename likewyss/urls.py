@@ -1,12 +1,13 @@
 from django.conf.urls import patterns, include, url
-from authentication.views import hello, feed
+from authentication.views import hello, lr, nlr
+from core.views import feed
 import os
 
 media = os.path.join(os.path.dirname(__file__), 'media')
 
 urlpatterns = patterns('',
-	(r'^$', hello),
-	(r'^feed/$', feed),
+	(r'^$', nlr(hello)),
+	(r'^feed/$', lr(feed)),
     (r'^auth/', include('authentication.urls')),
 )
 
