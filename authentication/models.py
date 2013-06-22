@@ -12,5 +12,6 @@ class FacebookProfiles(models.Model):
 
 class TwitterProfiles(models.Model):
     user = models.ForeignKey(User)
+    screen_name = models.CharField(max_length=64)
     oauth_token = models.CharField(max_length = 200)
     oauth_secret = models.CharField(max_length = 200)

@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" type="text/css" href="/media/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="/media/font-awesome/css/font-awesome.css" />
+	<link rel="stylesheet" type="text/css" href="/media/css/social-buttons.css" />
+	<style>
+	img,a {
+		margin:0;
+		padding:0;
+	}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			{% include "includes/nav" %}
+		</div>
+		<div class="row well">
+			<div class="span6">
+				{% block left-content-wrapper %}{% endblock %}
+			</div>
+		</div>
+		<div class="row well"
+			<div class="span6">
+				{% block right-content-wrapper %}{% endblock %}
+			</div>
+		</div>
+	</div>
+</body>

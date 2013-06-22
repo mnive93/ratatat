@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.views import login,logout
+from django.contrib.auth.views import logout
 from django.template import RequestContext, Context
 from django.template.loader import get_template
 from django.core.mail import send_mail
@@ -12,6 +12,7 @@ from authentication.models import *
 from core.models import *
 from authentication.forms import *
 from pyfb import Pyfb
+from utils import *
 import datetime, random, tweepy, shlex
 
 '''
@@ -119,10 +120,10 @@ def signup(request, number):
                 password = form.cleaned_data['password'],
                 email = signup.emailaddress,
                 first_name = fname,
-                last_name = lname
+                last_name = lname,
             )
             login(request, user)
-            return HttpResponseRedirect('/auth/welcome/')
+            return HttpResponseRedirect('/auth/welcome')
     else:
         form = SignupForm()
 
@@ -159,8 +160,8 @@ def facebooksignupsuccess(request):
                 fbk_id = me.id,
                 fbk_token = fb_token
             )
-        login(request, user)
-        return HttpResponseRedirect('/feed/')
+
+        return HttpResponseRedirect('/auth/login/')
     except ObjectDoesNotExist:
         user = User.objects.create_user(
             username = me.username,
@@ -185,7 +186,7 @@ def facebooksignupsuccess(request):
             
         user.save()
 
-        return HttpResponseRedirect('/setpwd/%s' % str(me.id))
+        return HttpResponseRedirect('/auth/setpwd/%s' % str(me.id))
 
 def setpassword(request, idnum):
 
@@ -198,7 +199,7 @@ def setpassword(request, idnum):
         me = facebook.get_user_by_id(id = fb.fbk_id)
         user = fb.user
     except ObjectDoesNotExist:
-        return HttpResponseRedirect('/landing/')
+        return HttpResponseRedirect('/')
 
     if request.method == 'POST':
         form = PasswordSetForm(request.POST)
@@ -206,7 +207,10 @@ def setpassword(request, idnum):
         if form.is_valid():
             user.set_password(form.cleaned_data['password'])
             user.save()
-            return HttpResponseRedirect('/login/')
+            authuser = authenticate(username=user.username, password=form.cleaned_data['password'])
+            if authuser is not None:
+                login(request, authuser)
+            return HttpResponseRedirect('/auth/welcome/')
     else:
         form = PasswordSetForm()
 
@@ -227,7 +231,7 @@ We, however, need it. Therefore, in the final step, we will be collecting the us
 
 def beginTwitterAuth(request):
     # start the OAuth process, set up a handler with our details
-    oauth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    oauth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
     
     # direct the user to the authentication url
     # if user is logged-in and authorized then transparently goto the callback URL
@@ -244,7 +248,7 @@ def beginTwitterAuth(request):
 
 def twitterCallback(request):
     verifier = request.GET.get('oauth_verifier')
-    oauth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    oauth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
     token = request.session.get('unauthed_token_tw', None)
     # remove the request token now we don't need it
     request.session.delete('unauthed_token_tw')
@@ -257,13 +261,21 @@ def twitterCallback(request):
         print 'Error, failed to get access token'
     request.session['access_key_tw'] = oauth.access_token.key
     request.session['access_secret_tw'] = oauth.access_token.secret    
-    response = HttpResponseRedirect('/addtwitter/')
+    response = HttpResponseRedirect('/auth/addtwitter/')
     return response
  
 def info(request):
     api = get_api(request)
     me = api.me()
-    user = User.objects.create_user(
+    try:
+        euser = User.objects.get(username=me.screen_name)
+        euseralike = User.objects.filter(username__icontains = me.screen_name)
+        newusername = euser.username + str(len(euseralike))
+        user = User.objects.create_user(
+            username = newusername,
+        )
+    except ObjectDoesNotExist:
+        user = User.objects.create_user(
             username = me.screen_name,
         )
 
@@ -281,11 +293,12 @@ def info(request):
 
     twttr = TwitterProfiles.objects.create(
             user = user,
+            screen_name = me.screen_name,
             oauth_token = request.session['access_key_tw'],
             oauth_secret = request.session['access_secret_tw']
         )
 
-    return HttpResponseRedirect('/setpwd/twitter/%s' % str(user.id))
+    return HttpResponseRedirect('/auth/setpwd/twitter/%s' % str(user.id))
 
 def setpwdtwttr(request, idnum):
     try:
@@ -302,16 +315,28 @@ def setpwdtwttr(request, idnum):
 
         if form.is_valid():
             try:
-                twuser = User.objects.get(email = form.cleaned_data['email'])
-                twuser.username = me.screen_name
-                twuser.save()
-                tw_user.user = twuser
+                euser = User.objects.get(email = form.cleaned_data['email'])
+                euser.set_password(form.cleaned_data['password'])
+                euser.save()
+                tw_user.user = euser
                 tw_user.save()
+                authuser = authenticate(username=euser.username, password=form.cleaned_data['password'])
+                if authuser is not None:
+                    login(request, authuser)
+                return HttpResponseRedirect('/feed/')
             except ObjectDoesNotExist:
                 user.email = form.cleaned_data['email']
                 user.set_password(form.cleaned_data['password'])
                 user.save()
-            return HttpResponseRedirect('/login/')
+
+                authuser = authenticate(username=user.username, password=form.
+                    cleaned_data['password'])
+
+                if authuser is not None:
+                    login(request, authuser)
+
+                return HttpResponseRedirect('/auth/welcome/')
+
     else:
         form = TwitterSignupForm()
 
@@ -320,7 +345,7 @@ def setpwdtwttr(request, idnum):
         'me':me
         })
 
-    return render_to_response('registration/tw.html', var)
+    return render_to_response('registration/twitter.html', var)
 
 def check_key(request):
     """

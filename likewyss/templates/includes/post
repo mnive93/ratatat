@@ -1,0 +1,14 @@
+<div class="well">
+<a href="/u/{{ p.user.username }}">
+{% if fb %}
+		<img src="https://graph.facebook.com/{{ fb.fbk_id }}/picture/?type=square" />
+{% endif %}
+{{ p.user.get_full_name }}</a>
+{% if p.source == 'fb' %}
+<i class="icon-facebook"> via Facebook</i>
+{% elif p.source == 'tw' %}
+<i class="icon-twitter"> via Twitter</i>
+{% endif %} at {{ p.time_created }}
+<hr>
+<p>{{ p.content }}</p>
+</div>

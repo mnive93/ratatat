@@ -8,6 +8,7 @@ media = os.path.join(os.path.dirname(__file__), 'media')
 urlpatterns = patterns('',
 	(r'^$', nlr(hello)),
 	(r'^feed/$', lr(feed)),
+	(r'^', include('core.urls')),
     (r'^auth/', include('authentication.urls')),
 )
 

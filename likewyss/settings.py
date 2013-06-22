@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'lw',                      # Or path to database file if using sqlite3.
+        'NAME': 'theinu',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
         'PASSWORD': '',
@@ -32,7 +32,9 @@ DATABASES = {
 FACEBOOK_CACHE_TIMEOUT = 1800
 FACEBOOK_APP_ID = '626969007330520'
 FACEBOOK_SECRET_KEY = 'b4a54affedfb1fcfe9a5978c97e11ce8'
-FACEBOOK_SIGNUP_REDIRECT_URL = SITE_HOST + 'fb/'
+TWITTER_CONSUMER_KEY = 'RcZScuT4Vts4NUDNebzA'
+TWITTER_CONSUMER_SECRET = 'YghZRFhBTzwkzXtU6U17ZKfj8dUffz1RIHwTI3DpA'
+FACEBOOK_SIGNUP_REDIRECT_URL = 'http://localhost/auth/fb/'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -42,7 +44,7 @@ ALLOWED_HOSTS = ['.likewyss.com']
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'Asia/Calcutta'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -132,6 +134,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',
     'authentication',
     'core',
     # Uncomment the next line to enable the admin:
@@ -139,6 +142,13 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr'
+    },
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

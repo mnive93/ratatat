@@ -6,9 +6,10 @@
 
 {% block content %}
 		<p>Thanks for signing up with your Facebook account. Although we want to deeply integrate our service with other social networks, we would like to stay independent too. So, please set a password exclusively for accessing your Likewyss account using your username {{ user.username }} or email address {{ me.email }}</p>
-		<form action="." method="post">
+		<form method="post">
 			{% csrf_token %}
 			<input type="password" placeholder="Choose a strong password." name='password' id="id_password" />
 			<button type="submit" class="btn btn-success">Set password and get going</button>
+			<input type="hidden" name="next" value="/auth/welcome" />
 		</form>
 {% endblock %}
