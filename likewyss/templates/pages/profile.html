@@ -1,8 +1,14 @@
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" language="javascript" src="/media/js/tornado.js"></script>
+<script type="text/javascript" language="javascript" src="/media/js/jquery-2.0.2.min.js"></script>
+
 {% extends 'parent/tricolumnar-base.html' %}
 
 {% block title %}Likewyss - {{ user.username }}{% endblock %}
 
 {% block left-content-wrapper %}
+
 <h1>
 	{% if fb %}
 		<img src="https://graph.facebook.com/{{ fb.fbk_id }}/picture/?type=square" />

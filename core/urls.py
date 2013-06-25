@@ -5,4 +5,7 @@ from core.views import *
 urlpatterns = patterns('',
 	(r'^u/([\w._-]+)', profile),
 	(r'^search/', search),
+	(r'^writedata/$',postdata),
+	(r'^writecomment/$',commentdata)
+
 )

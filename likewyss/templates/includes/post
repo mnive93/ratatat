@@ -11,4 +11,10 @@
 {% endif %} at {{ p.time_created }}
 <hr>
 <p>{{ p.content }}</p>
+<form  method="post" id="comments">
+{% csrf_token %}
+<textarea name='content' id='id_content' placeholder='Comment here.'></textarea>
+<input id="post_id" type="hidden"  value="{{ p.id }}" name="post_id" />
+<button id="comment" class="btn btn-success"> Comment </button>
+</form>
 </div>

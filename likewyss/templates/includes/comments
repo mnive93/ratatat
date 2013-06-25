@@ -1,0 +1,6 @@
+<form  method="post" id="comments">
+{% csrf_token %}
+<textarea name='content' id='id_content' placeholder='Comment here.'></textarea>
+<button id = "{{ post.random_number }}" name="comments" class="btn btn-success">Comment</button>
+<input id="post_id" type="hidden"  value="{{ post.id }}" name="post_id" />
+</form>

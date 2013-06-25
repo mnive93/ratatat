@@ -10,7 +10,9 @@ from authentication.forms import *
 from core.forms import *
 from pyfb import Pyfb
 import datetime, random, tweepy, shlex
-
+import redis
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 def feed(request):
 	usergenres = request.user.genretouser.all()
@@ -19,14 +21,6 @@ def feed(request):
 		form = PostingForm(request.POST)
 
 		if form.is_valid():
-			post = Posts.objects.create(
-				user=user,
-				content = form.cleaned_data['content'],
-				time_created=datetime.datetime.now(),
-				time_updated=datetime.datetime.now(),
-				source='lw',
-				popularity=1
-			)
 
 			if request.POST.get('facebookshare'):
 				try:
@@ -63,6 +57,7 @@ def feed(request):
 def profile(request, username):
 	user = get_object_or_404(User, username=username)
 	sta = rtwts = fb = tw = None
+	'''
 	try:
 		fbk = FacebookProfiles.objects.get(user=user)
 	except ObjectDoesNotExist:
@@ -72,13 +67,13 @@ def profile(request, username):
 		twttr = TwitterProfiles.objects.get(user=user)
 	except ObjectDoesNotExist:
 		pass
-
+   '''
 	posts = Posts.objects.filter(user=user).order_by('-time_created')
 
 	var = RequestContext(request, {
 		'user':user,
-		'fb':fbk,
-		'tw':twttr,
+	#	'fb':fbk,
+	#	'tw':twttr,
 		'posts':posts
 		})
 
@@ -94,3 +89,30 @@ def search(request):
 		return HttpResponse(usernames)
 	else:
 		return HttpResponse('Null')
+@csrf_exempt
+def postdata(request):  
+    print "in my view"
+    sender = User.objects.get(id=request.POST.get("sender"))  
+    print request.POST.get("sender")
+    random
+    text = request.POST['message']
+    decision = 'undefined'
+    post = Posts.objects.create(
+				user=sender,
+				content = text,
+				time_created=datetime.datetime.now(),
+				time_updated=datetime.datetime.now(),
+				source='lw',
+				popularity=1
+			)
+    
+    r = redis.StrictRedis()
+    r.publish('feed', json.dumps({
+            "sender": sender.username,
+            "text": text,
+        }))
+    return HttpResponse(json.dumps({"status": "ok"}), content_type="application/json")
+@csrf_exempt
+def commentdata(request):  
+    print "in my view"
+    return HttpResponse(json.dumps({"status": "ok"}), content_type="application/json")

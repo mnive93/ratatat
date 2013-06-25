@@ -1,8 +1,7 @@
-
 <form  method="post" id="posting">
 {% csrf_token %}
 <textarea name='content' id='id_content' placeholder='Compose a post.'></textarea>
 <label for="fbshare"><input type="checkbox" name="facebookshare" id="fbshare" checked="checked" /> <i class="icon-facebook"></i> Share to Facebook</label>
 <label for="twshare"><input type="checkbox" name="twittershare" id="twshare" checked="checked" /> <i class="icon-twitter"></i> Share to Twitter</label>
-<button id="postbut" class="btn btn-success">Post</button>
+<button type="submit" class="btn btn-success">Post</button>
 </form>
