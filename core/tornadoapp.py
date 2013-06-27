@@ -28,7 +28,7 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
         super(MessagesHandler, self).__init__(*args, **kwargs)
         self.client = tornadoredis.Client()
         self.client.connect()
-     
+        print "CLient"
      
      def open(self):
         session_key = self.get_cookie(settings.SESSION_COOKIE_NAME)
@@ -42,6 +42,7 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
         self.channel = 'feed'
         self.client.subscribe(self.channel)
         self.client.listen(self.on_message)
+
 
      def handle_request(self, response):
         print "in handle_request"
@@ -112,18 +113,22 @@ class CommentsHandler(tornado.websocket.WebSocketHandler):
         #....
         t = json.loads(message)
         print "comment received"
-        print (t['comment']);
+        print (t['comment'])
+        print "post"
+        print(t['post_id'])
      #  c.publish('feed',message)
         c.publish('comment', json.dumps({
             "timestamp": int(time.time()),
             "sender": self.sender_name,
-            "text": message,
+            "text": t['comment'],
+            "post":t['post_id'],
         }))
  
         self.write_message(json.dumps({
             "timestamp": int(time.time()),
             "sender": self.sender_name,
-            "text": message,
+            "text": t['comment'],
+            "post":t['post_id'],
         }))
         print self.sender_name
         http_client = tornado.httpclient.AsyncHTTPClient()
@@ -133,6 +138,7 @@ class CommentsHandler(tornado.websocket.WebSocketHandler):
                 method="POST",
                 body=urllib.urlencode({
                 "message": t['comment'],
+                "post_id":t['post_id'],
                 "sender": self.user_id,
             })
         )

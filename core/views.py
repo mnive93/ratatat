@@ -69,12 +69,12 @@ def profile(request, username):
 		pass
    '''
 	posts = Posts.objects.filter(user=user).order_by('-time_created')
-
+	comments = Comments.objects.all()
 	var = RequestContext(request, {
 		'user':user,
 	#	'fb':fbk,
 	#	'tw':twttr,
-		'posts':posts
+		'posts':posts,
 		})
 
 	return render_to_response('pages/profile.html', var)
@@ -91,6 +91,7 @@ def search(request):
 		return HttpResponse('Null')
 @csrf_exempt
 def postdata(request):  
+   if request.method == "POST":
     print "in my view"
     sender = User.objects.get(id=request.POST.get("sender"))  
     print request.POST.get("sender")
@@ -114,5 +115,26 @@ def postdata(request):
     return HttpResponse(json.dumps({"status": "ok"}), content_type="application/json")
 @csrf_exempt
 def commentdata(request):  
-    print "in my view"
+   if request.method == "POST":
+    sender = User.objects.get(id=request.POST.get("sender"))  
+    text = request.POST['message']
+   
+
+    post = Posts.objects.get(id=request.POST.get("post_id"))
+    print post
+    print text
+    comment = Comments.objects.create(
+    	            comment=text,
+    	            user=sender,
+    	            time_log=datetime.datetime.now(),
+
+    	)
+    comment.post.add(post)
+    r = redis.StrictRedis()
+    r.publish('comment', json.dumps({
+            "sender": sender.username,
+            "text": text,
+        }))
+
     return HttpResponse(json.dumps({"status": "ok"}), content_type="application/json")
+
