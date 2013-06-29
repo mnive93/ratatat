@@ -4,18 +4,14 @@ import time
 import urllib
 import tornadoredis
 import tornado.web
-import tornado.websocket
+import django.utils.importlib
+import tornado
+from tornado.options import options
+import tornado.web
 import tornado.ioloop
-import tornado.httpclient
-
+import sockjs.tornado
 from django.conf import settings
-from django.utils.importlib import import_module
-
-session_engine = import_module(settings.SESSION_ENGINE)
-
-from django.contrib.auth.models import User
-
-
+import django.contrib.auth
 c = tornadoredis.Client()
 c.connect()
 
@@ -23,26 +19,40 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.set_header('Content-Type', 'text/plain')
         self.write('Hello. :)')
-class MessagesHandler(tornado.websocket.WebSocketHandler):
+class MessagesHandler(sockjs.tornado.SockJSConnection):
      def __init__(self, *args, **kwargs):
         super(MessagesHandler, self).__init__(*args, **kwargs)
         self.client = tornadoredis.Client()
         self.client.connect()
         print "CLient"
-     
-     def open(self):
-        session_key = self.get_cookie(settings.SESSION_COOKIE_NAME)
-        session = session_engine.SessionStore(session_key)
-        try:
-            self.user_id = session["_auth_user_id"]
-            self.sender_name = User.objects.get(id=self.user_id).username
-        except (KeyError, User.DoesNotExist):
-            self.close()
-            return
+     def get_django_session(self,info):
+       if not hasattr(self, '_session'):
+         engine = django.utils.importlib.import_module(django.conf.settings.SESSION_ENGINE)
+         session_key = str(info.get_cookie(django.conf.settings.SESSION_COOKIE_NAME)).split('=')[1]
+         self._session = engine.SessionStore(session_key)
+         print self._session
+         return self._session
+     def get_current_user(self,info):
+       print info
+    # get_user needs a django request object, but only looks at the session
+       class Dummy(object): pass
+       django_request = Dummy()
+
+       django_request.session = self.get_django_session(info=info)
+       
+       user = django.contrib.auth.get_user(django_request)
+       print user
+       if user.is_authenticated():
+        return user
+     def on_open(self, info):
+        user = self.get_current_user(info=info)
+        self.sender_name=user.username
+        self.user_id=user.id
+        print self.sender_name
         self.channel = 'feed'
         self.client.subscribe(self.channel)
         self.client.listen(self.on_message)
-
+       
 
      def handle_request(self, response):
         print "in handle_request"
@@ -50,19 +60,23 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
      def on_message(self, message):
         #....
         print "message received %s" % message
+
       #  c.publish('feed',message)
+        '''
         c.publish('feed', json.dumps({
             "timestamp": int(time.time()),
-            "sender": self.sender_name,
+            "sender": self.user,
             "text": message,
         }))
+'''
+        print self.sender_name
+        print self.user_id
  
-        self.write_message(json.dumps({
+        self.send({
             "timestamp": int(time.time()),
             "sender": self.sender_name,
             "text": message,
-        }))
-        print self.sender_name
+        })
         http_client = tornado.httpclient.AsyncHTTPClient()
         print http_client
         request = tornado.httpclient.HTTPRequest(
@@ -86,26 +100,39 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
             self.client.unsubscribe('feed')
             self.client.disconnect()
 
-class CommentsHandler(tornado.websocket.WebSocketHandler):
+class CommentsHandler(sockjs.tornado.SockJSConnection):
      def __init__(self, *args, **kwargs):
         super(CommentsHandler, self).__init__(*args, **kwargs)
         self.client = tornadoredis.Client()
         self.client.connect()
-     
-     
-     def open(self):
-        session_key = self.get_cookie(settings.SESSION_COOKIE_NAME)
-        session = session_engine.SessionStore(session_key)
-        try:
-            self.user_id = session["_auth_user_id"]
-            self.sender_name = User.objects.get(id=self.user_id).username
-        except (KeyError, User.DoesNotExist):
-            self.close()
-            return
-        self.channel = 'comment'
+
+     def get_django_session(self,info):
+       if not hasattr(self, '_session'):
+         engine = django.utils.importlib.import_module(django.conf.settings.SESSION_ENGINE)
+         session_key = str(info.get_cookie(django.conf.settings.SESSION_COOKIE_NAME)).split('=')[1]
+         self._session = engine.SessionStore(session_key)
+         print self._session
+         return self._session
+     def get_current_user(self,info):
+       print info
+    # get_user needs a django request object, but only looks at the session
+       class Dummy(object): pass
+       django_request = Dummy()
+
+       django_request.session = self.get_django_session(info=info)
+       
+       user = django.contrib.auth.get_user(django_request)
+       print user
+       if user.is_authenticated():
+        return user
+     def on_open(self, info):
+        user = self.get_current_user(info=info)
+        self.sender_name=user.username
+        self.user_id=user.id
+        print self.sender_name
+        self.channel = 'feed'
         self.client.subscribe(self.channel)
         self.client.listen(self.on_message)
-
      def handle_request(self, response):
         print "in handle_request"
 
@@ -119,18 +146,18 @@ class CommentsHandler(tornado.websocket.WebSocketHandler):
      #  c.publish('feed',message)
         c.publish('comment', json.dumps({
             "timestamp": int(time.time()),
-            "sender": self.sender_name,
+            "sender": self.user_id,
             "text": t['comment'],
             "post":t['post_id'],
         }))
  
-        self.write_message(json.dumps({
+        self.send(json.dumps({
             "timestamp": int(time.time()),
-            "sender": self.sender_name,
+            "sender": self.user_id,
             "text": t['comment'],
             "post":t['post_id'],
         }))
-        print self.sender_name
+        #print self.sender_name
         http_client = tornado.httpclient.AsyncHTTPClient()
         print http_client
         request = tornado.httpclient.HTTPRequest(
@@ -154,11 +181,10 @@ class CommentsHandler(tornado.websocket.WebSocketHandler):
         if self.client.subscribed:
             self.client.unsubscribe('comment')
             self.client.disconnect()
-
+Post = sockjs.tornado.SockJSRouter(MessagesHandler, '/track')
+Comments=sockjs.tornado.SockJSRouter(CommentsHandler,'/comment')
 application = tornado.web.Application([
-    (r"/", MainHandler),
-    (r'/track/', MessagesHandler),
-    (r'/comment/',CommentsHandler),
-
+    (r"/", MainHandler)]+ Post.urls + Comments.urls
+    )
+ 
     
-])

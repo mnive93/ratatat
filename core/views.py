@@ -89,6 +89,8 @@ def search(request):
 		return HttpResponse(usernames)
 	else:
 		return HttpResponse('Null')
+
+
 @csrf_exempt
 def postdata(request):  
    if request.method == "POST":

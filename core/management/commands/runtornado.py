@@ -34,11 +34,11 @@ class Command(BaseCommand):
 
         self.http_server = tornado.httpserver.HTTPServer(application)
         self.http_server.listen(port, address="127.0.0.1")
-
-        # Init signals handler
+            # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)
 
         # This will also catch KeyboardInterrupt exception
         signal.signal(signal.SIGINT, self.sig_handler)
 
         tornado.ioloop.IOLoop.instance().start()
+        print "Tornado running in port",port

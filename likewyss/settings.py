@@ -14,7 +14,7 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
+SESSION_ENGINE = 'redis_sessions.session'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
