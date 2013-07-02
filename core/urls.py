@@ -6,6 +6,8 @@ urlpatterns = patterns('',
 	(r'^u/([\w._-]+)', profile),
 	(r'^search/', search),
 	(r'^writedata/$',postdata),
-	(r'^writecomment/$',commentdata)
+	(r'^writecomment/$',commentdata),
+    (r'^opinionsdata/$',opinion),
+
 
 )

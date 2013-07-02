@@ -15,7 +15,6 @@
 <div id={{p.id}}>
 {% for comment in p|in_filter %}
 {{comment.user.get_full_name}} {{comment.comment}}<br/>
-
 {% endfor %}
 </div>
 <form id="comments">
@@ -23,8 +22,7 @@
 <textarea name='content' id='id_content' placeholder='Comment here.'></textarea>
 <input id="post_id" type="hidden"  value="{{ p.id }}" name="post_id" />
 <button type="button" id="comment" class="btn btn-success"> Comment </button>
-</form>
-<button type="button" id="like" class="btn btn-success"> <i class="icon-thumbs-up"></i></button>
-<button type="button" id="dislike" class="btn btn-success"> <i class="icon-thumbs-down"></i></button>
 
-</div>
+
+</form>
+

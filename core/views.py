@@ -78,7 +78,6 @@ def profile(request, username):
 		})
 
 	return render_to_response('pages/profile.html', var)
-
 def search(request):
 	if 'q' in request.GET:
 
@@ -90,7 +89,7 @@ def search(request):
 	else:
 		return HttpResponse('Null')
 
-
+ 
 @csrf_exempt
 def postdata(request):  
    if request.method == "POST":
@@ -140,3 +139,28 @@ def commentdata(request):
 
     return HttpResponse(json.dumps({"status": "ok"}), content_type="application/json")
 
+@csrf_exempt
+def opinion(request):
+    if request.method == 'POST':
+        post_id = request.POST['post_id']
+        value = request.POST['value']
+        post = Posts.objects.get(id = post_id)
+        user = User.objects.get(id=request.POST.get("sender"))  
+        try:
+            u_opinion = Opinions.objects.get(
+                user = user,
+                post = post
+            )
+            if value == '0':
+                u_opinion.delete()
+            else:
+                u_opinion.opinion = value 
+                u_opinion.save()
+                
+        except ObjectDoesNotExist:
+            u_opinion = Opinions.objects.create(
+                    user = user,
+                    post = post,
+                    opinion = value
+            )
+    return HttpResponse(json.dumps({"status": "ok"}), content_type="application/json")

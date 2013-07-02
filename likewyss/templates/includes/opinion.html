@@ -1,0 +1,23 @@
+<div id="opi_{{postid}}">
+<form id="opinions">
+<input id="post_id" type="hidden"  value="{{ postid }}" name="post_id" />
+<button type="button" id="like" class="btn  {{l_class}}"> <i class="icon-thumbs-up"></i></button>
+<button type="button" id="dislike" class="btn  {{dl_class}}"> <i class="icon-thumbs-down"></i></button>
+</form>
+{% if likes_count or dislikes_count %}
+<div class="opinion-details">
+{% if user_opinion %}
+{% if user_opi_val == 1 %}
+<p>You{% if likes_count > 1 %} and {{ likes_count|add:-1 }} other person{{ likes_count|add:"-1"|pluralize }}{% endif %} like this</p>
+{% if dislikes_count %}<p>{{ dislikes_count }} dislike this</p>{% endif %}
+{% elif user_opi_val == -1 %}
+{% if likes_count %}<p>{{ likes_count }} like this</p>{% endif %}
+<p>You{% if dislikes_count > 1 %} and {{ dislikes_count|add:-1}} other person{{ dislikes_count|add:"-1"|pluralize }}{% endif %} dislike this</p>
+{% endif %}
+{% else %}
+{% if likes_count %}<p>{{ likes_count }} like this</p>{% endif %}
+{% if dislikes_count %}<p>{{ dislikes_count }} dislike this</p>{% endif %}
+{% endif %}
+</div>
+{% endif %}
+</div>

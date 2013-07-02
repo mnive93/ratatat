@@ -3,9 +3,7 @@ function activate_tornado() {
       function start_chat_ws() {
          ws = new SockJS("http://127.0.0.1:8888/track");
          ws2 = new SockJS("http://127.0.0.1:8888/comment");
-
-         ws.onopen = function () {
-           }
+         ws3 = new SockJS("http://127.0.0.1:8888/opinion");
          ws.onmessage = function(event) {
          var message_data = JSON.parse(event.data);
             var date = new Date(message_data.timestamp*1000);
@@ -13,8 +11,6 @@ function activate_tornado() {
                 return (val < 10) ? '0' + val : val;
         });
  };
-        ws2.onopen = function () {
-       }
         ws2.onmessage = function(event) {
         var message_data = JSON.parse(event.data);
             var id = message_data.post;
@@ -54,8 +50,59 @@ $("button#comment").click(function(event)
      send_comment($(this).parent().find('input[id="post_id"]').val(),$(this).parent().find('textarea').val());
  });      
 
-$("button#like").click(send_message);
-$("button#dislike").click(send_message);
+$("button#like").click(function(event)
+
+ {
+     
+     like($(this).parent().find('input[id="post_id"]').val());
+ });
+
+$("button#dislike").click(function(event)
+
+ {
+     
+     dislike($(this).parent().find('input[id="post_id"]').val());
+ });
+function like(post_id)
+{
+  if($('button#like').hasClass('btn-success'))
+  {
+$('button#like').removeClass('btn-success').addClass('btn-danger');
+ws3.send(JSON.stringify({
+  post_id: post_id,
+  value:"1",
+}));
+  }
+  else
+  {
+   $('button#like').removeClass('btn-danger').addClass('btn-success');
+    ws3.send(JSON.stringify({
+   post_id: post_id,
+   value:"0",
+    }));
+
+  }
+}
+function like(post_id)
+{
+  if($('button#dislike').hasClass('btn-success'))
+  {
+$('button#like').removeClass('btn-success').addClass('btn-danger');
+ws3.send(JSON.stringify({
+  post_id: post_id,
+  value:"-1",
+}));
+  }
+  else
+  {
+   $('button#dislike').removeClass('btn-danger').addClass('btn-success');
+    ws3.send(JSON.stringify({
+   post_id: post_id,
+   value:"0",
+    }));
+
+  }
+}
 
 function send_message() {
       var textarea = $("textarea#id_content");
