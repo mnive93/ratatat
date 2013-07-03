@@ -10,14 +10,7 @@ def in_filter(post):
      post = Posts.objects.get(id = post.id)
      comment = post.commenttopost.all()
      return comment
-class Opinions(Node):
-     def __init__(self, user):
-        self.user = user
 
-     def render(self, context):
-        context['user'] = self.user
-        return ''
-    
 def load_opinion(context,user,post):
     postid=post.id
     print postid

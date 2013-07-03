@@ -12,6 +12,7 @@
 {% endif %} at {{ p.time_created }}
 <hr>
 <p>{{ p.content }}</p>
+
 <div id={{p.id}}>
 {% for comment in p|in_filter %}
 {{comment.user.get_full_name}} {{comment.comment}}<br/>

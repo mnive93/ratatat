@@ -98,7 +98,10 @@ def postdata(request):
     print request.POST.get("sender")
     random
     text = request.POST['message']
-    decision = 'undefined'
+    decision = str(request.POST['decision'])
+    decision = decision.capitalize()
+    genres = Genres.objects.get(title=decision)
+    print genres.title
     post = Posts.objects.create(
 				user=sender,
 				content = text,
@@ -107,7 +110,7 @@ def postdata(request):
 				source='lw',
 				popularity=1
 			)
-    
+    post.genres.add(genres)
     r = redis.StrictRedis()
     r.publish('feed', json.dumps({
             "sender": sender.username,

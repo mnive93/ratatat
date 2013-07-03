@@ -12,6 +12,7 @@ import tornado.ioloop
 import sockjs.tornado
 from django.conf import settings
 import django.contrib.auth
+from utils import *
 c = tornadoredis.Client()
 c.connect()
 
@@ -77,6 +78,7 @@ class MessagesHandler(sockjs.tornado.SockJSConnection):
             "sender": self.sender_name,
             "text": message,
         })
+        decision = train(message)
         http_client = tornado.httpclient.AsyncHTTPClient()
         print http_client
         request = tornado.httpclient.HTTPRequest(
@@ -85,6 +87,7 @@ class MessagesHandler(sockjs.tornado.SockJSConnection):
                 body=urllib.urlencode({
                 "message": message.encode("utf-8"),
                 "sender": self.user_id,
+                "decision":decision.encode("utf-8"),
             })
         )
         print request   
